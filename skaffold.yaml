@@ -1,0 +1,23 @@
+apiVersion: skaffold/v2beta5
+kind: Config
+build:
+  artifacts:
+    - image: index.docker.io/cage1016/ms-sample-add
+      buildpacks:
+        builder: "gcr.io/buildpacks/builder:v1"
+        env:
+          - GOOGLE_GCFLAGS="-gcflags='all=-N -l'"
+          - GOOGLE_BUILDABLE=cmd/add/main.go
+    - image: index.docker.io/cage1016/ms-sample-count
+      buildpacks:
+        builder: "gcr.io/buildpacks/builder:v1"
+        env:
+          - GOOGLE_GCFLAGS="-gcflags='all=-N -l'"
+          - GOOGLE_BUILDABLE=cmd/count/main.go
+  tagPolicy:
+      sha256: {}
+  local: {}
+deploy:
+  kubectl:
+    manifests:
+    - ./deployments/k8s/*.yaml

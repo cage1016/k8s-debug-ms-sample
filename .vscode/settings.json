@@ -1,0 +1,9 @@
+{
+    "cloudcode.kubeconfigs": [
+        {
+            "name": "default",
+            "configPath": "/Users/cagechung/.kube/config"
+        }
+    ],
+    "cloudcode.active-kubeconfig": "default"
+}

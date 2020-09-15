@@ -1,0 +1,98 @@
+{{- if .Values.count.enabled }}
+{{- if eq (len $.Values.count.versions) 0 }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.count.name }}
+spec:
+  replicas: {{ .Values.count.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.count.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.count.name }}
+    spec:
+      containers:
+        - name: {{ .Values.count.name }}
+          env:
+          {{- range $key, $value := .Values.count.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+          image: {{ $.Values.count.image.repository }}:{{ $.Values.count.image.tag }}
+          resources:
+{{ toYaml .Values.defaultResources | trim | indent 12 }}
+{{- if $.Values.count.imagePullSecretsName }}
+      imagePullSecrets:
+        - name: {{ $.Values.count.imagePullSecretsName }}
+{{- end }}
+{{- else }}
+{{- range $version, $imageTag := .Values.count.versions }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $.Values.count.name }}
+spec:
+  replicas: {{ $.Values.count.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $.Values.count.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $.Values.count.name }}
+        version: {{ $version | quote }}
+    spec:
+      containers:
+        - name: {{ $.Values.count.name }}
+          env:
+          {{- range $key, $value := $.Values.count.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+          image: {{ if $imageTag }}{{ $.Values.count.image.repository }}:{{ $imageTag }}{{ else }}{{ $.Values.count.image.repository }}:{{ $.Values.count.image.tag }}{{ end }}
+          resources:
+{{ toYaml .Values.defaultResources | trim | indent 12 }}
+{{- if $.Values.count.imagePullSecretsName }}
+      imagePullSecrets:
+        - name: {{ $.Values.count.imagePullSecretsName }}
+{{- end }}
+{{- end }}
+{{- end }}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Values.count.name }}
+spec:
+  selector:
+    app: {{ .Values.count.name }}
+  ports:
+    - port: 80
+      name: http
+      targetPort: {{ .Values.count.env.QS_HTTP_PORT }}
+    - port: 8000
+      name: grpc
+      targetPort: {{ .Values.count.env.QS_GRPC_PORT }}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ .Values.count.name }}-external
+  labels:
+    app: {{ .Values.count.name }}
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{ .Values.count.name }}
+  ports:
+    - port: 9190
+      name: http
+      targetPort: {{ .Values.count.env.QS_HTTP_PORT }}
+    - port: 9191
+      name: grpc
+      targetPort: {{ .Values.count.env.QS_GRPC_PORT }}
+{{- end }}

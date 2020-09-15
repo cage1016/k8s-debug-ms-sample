@@ -1,0 +1,32 @@
+add:
+  enabled: true
+  name: add
+  image:
+    repository: index.docker.io/cage1016/ms-sample-add
+    tag: latest
+  imagePullSecretsName: ""
+  replicas: 1
+  versions: {}
+  env:
+    QS_LOG_LEVEL: info
+    QS_HTTP_PORT: "10020"
+    QS_GRPC_PORT: "10021"
+
+count:
+  enabled: true
+  name: count
+  image:
+    repository: index.docker.io/cage1016/ms-sample-count
+    tag: latest
+  imagePullSecretsName: ""
+  replicas: 1
+  versions: {}
+  env:
+    QS_LOG_LEVEL: info
+    QS_HTTP_PORT: "10120"
+    QS_GRPC_PORT: "10121"  
+    QS_DB_HOST: postgresql.default.svc.cluster.local
+    QS_DB_PORT: "5432"
+    QS_DB: count
+    QS_DB_USER: postgres
+    QS_DB_PASS: password    

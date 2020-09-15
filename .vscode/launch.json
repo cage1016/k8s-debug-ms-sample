@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "Kubernetes: Run/Debug: skaffold-k8s.yaml",
+            "type": "cloudcode.kubernetes",
+            "request": "launch",
+            "skaffoldConfig": "${workspaceFolder}/skaffold-k8s.yaml",
+            "watch": true,
+            "cleanUp": true,
+            "portForward": true,
+            "imageRegistry": "index.docker.io/cage1016"
+        },
+        {
+            "name": "count 56286",
+            "type": "cloudcode.kubernetes",
+            "request": "attach",
+            "language": "Go",
+            "debugPort": 56268,
+            "podSelector": {
+                "app": "count"
+            },
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/workspace"
+        }
+    ]
+}

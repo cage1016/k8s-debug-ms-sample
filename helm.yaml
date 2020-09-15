@@ -1,0 +1,51 @@
+apiVersion: skaffold/v2beta5
+kind: Config
+build:
+  artifacts:
+    - image: index.docker.io/cage1016/ms-sample-add
+      buildpacks:
+        builder: "gcr.io/buildpacks/builder:v1"
+        env:
+          - GOOGLE_GCFLAGS="-gcflags='all=-N -l'"
+          - GOOGLE_BUILDABLE=cmd/add/main.go
+    - image: index.docker.io/cage1016/ms-sample-count
+      buildpacks:
+        builder: "gcr.io/buildpacks/builder:v1"
+        env:
+          - GOOGLE_GCFLAGS="-gcflags='all=-N -l'"
+          - GOOGLE_BUILDABLE=cmd/count/main.go          
+  tagPolicy:
+    sha256: {}
+  local: {}
+deploy:
+  helm:
+    flags:
+      upgrade:
+        - --install
+    releases:
+      - name: ms-sample
+        chartPath: ./deployments/helm/ms-sample
+        imageStrategy:
+          helm: {}
+        artifactOverrides:
+          add.image: index.docker.io/cage1016/ms-sample-add
+          count.image: index.docker.io/cage1016/ms-sample-count
+
+# profiles:
+#   - name: debug
+#     build:
+#       artifacts:
+#         - image: index.docker.io/cage1016/ms-sample-add
+#           context: .
+#           docker:
+#             dockerfile: ./deployments/docker/Dockerfile
+#             buildArgs:
+#               SVC: add
+#               GOGCFLAGS: "-gcflags='all=-N -l'"
+#         - image: index.docker.io/cage1016/ms-sample-count
+#           context: .
+#           docker:
+#             dockerfile: ./deployments/docker/Dockerfile
+#             buildArgs:
+#               SVC: count
+#               GOGCFLAGS: "-gcflags='all=-N -l'"
